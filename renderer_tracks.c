@@ -25,8 +25,7 @@
 
 #define FORCE_RED
 
-#include <lcmtypes/obs_track_list_t.h>
-#include <lcmtypes/obs_obstacle_list_t.h>
+#include <lcmtypes/obs_lcmtypes.h>
 
 #define RENDERER_NAME "Tracks"
 
@@ -48,7 +47,7 @@ typedef struct _RendererTracks {
     BotViewer          *viewer;
     BotGtkParamWidget *pw;
 
-  //**Needs to be bot trans 
+  //**Needs to be bot trans
   //ATrans          *atrans;
   BotFrames  *atrans;
     int64_t         last_utime;
@@ -82,7 +81,7 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
         struct track_info *tdata = g_ptr_array_index(self->channels, chanidx);
 
         obs_track_list_t *tlist = tdata->tlist;
-	//this only draws the tracts - not static obs 
+	//this only draws the tracts - not static obs
         for (int tidx = 0; tidx < tlist->ntracks; tidx++) {
             obs_track_t *t = &tlist->tracks[tidx];
 
@@ -126,14 +125,14 @@ static void my_draw( BotViewer *viewer, BotRenderer *renderer )
 //                glutil_draw_text(pos, NULL, buf, GLUTIL_DRAW_TEXT_DROP_SHADOW);
                 bot_gl_draw_text(pos, NULL, buf, 0);
             }
-            
+
             glPopMatrix();
         }
     }
 }
 
 static void
-on_tracks(const lcm_recv_buf_t *buf, const char *channel, 
+on_tracks(const lcm_recv_buf_t *buf, const char *channel,
 	  const obs_track_list_t *msg, void *user_data )
 {
     RendererTracks *self = (RendererTracks*) user_data;
@@ -166,7 +165,7 @@ on_tracks(const lcm_recv_buf_t *buf, const char *channel,
 }
 
 static void
-on_obstacles (const lcm_recv_buf_t *buf, const char * channel, 
+on_obstacles (const lcm_recv_buf_t *buf, const char * channel,
 	      const obs_obstacle_list_t * msg, void * user)
 {
   on_tracks (buf, channel, &msg->tracks, user);
@@ -191,9 +190,9 @@ static void on_save_preferences (BotViewer *viewer, GKeyFile *keyfile, void *use
     bot_gtk_param_widget_save_to_key_file (self->pw, keyfile, RENDERER_NAME);
 }
 
-void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotParam * param) 
+void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotParam * param)
 {
-    RendererTracks *self = 
+    RendererTracks *self =
         (RendererTracks*) calloc(1, sizeof(RendererTracks));
 
     BotRenderer *renderer = &self->renderer;
@@ -206,23 +205,23 @@ void setup_renderer_tracks(BotViewer *viewer, int priority, lcm_t *_lcm, BotPara
     renderer->enabled = 1;
     renderer->user = self;
 
-    self->lcm = _lcm; 
+    self->lcm = _lcm;
     self->config = param;
     self->atrans = bot_frames_get_global(self->lcm, self->config);//globals_get_atrans();
-    
+
     self->channels_hashtable = g_hash_table_new(g_str_hash, g_str_equal);
     self->channels = g_ptr_array_new();
     self->viewer = viewer;
 
-    g_signal_connect (G_OBJECT (self->pw), "changed", 
+    g_signal_connect (G_OBJECT (self->pw), "changed",
                       G_CALLBACK (on_param_widget_changed), self);
-    
+
     obs_track_list_t_subscribe(self->lcm, ".*TRACKS.*", on_tracks, self);
     obs_obstacle_list_t_subscribe (self->lcm, "OBSTACLES", on_obstacles, self);
 
     bot_viewer_add_renderer(viewer, renderer, priority);
 
-    g_signal_connect (G_OBJECT (viewer), "load-preferences", 
+    g_signal_connect (G_OBJECT (viewer), "load-preferences",
             G_CALLBACK (on_load_preferences), self);
     g_signal_connect (G_OBJECT (viewer), "save-preferences",
             G_CALLBACK (on_save_preferences), self);
