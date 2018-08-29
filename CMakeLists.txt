@@ -8,8 +8,7 @@ if(NOT BOT2_VIS_FOUND)
 endif()
 
 add_definitions(-std=gnu99)
-add_library(obstacle-detector-renderer SHARED
-    renderer_cam_thumb.c)
+add_library(obstacle-detector-renderer SHARED renderer_tracks.c)
 
 target_link_libraries(obstacle-detector-renderer ${OPENGL_LIBRARIES})
 
