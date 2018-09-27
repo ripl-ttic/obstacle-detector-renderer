@@ -1,25 +1,25 @@
+cmake_minimum_required(VERSION 2.6.0)
+
+# pull in the pods macros. See cmake/pods.cmake for documentation
+set(POD_NAME obstacle-detector-renderer)
+include(cmake/pods.cmake)
+
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(BOT2_VIS bot2-vis)
+
+# Necessary to build on OSX
+find_package(OpenGL REQUIRED)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB2 REQUIRED glib-2.0)
+pkg_check_modules(LCM REQUIRED lcm)
+pkg_check_modules(BOT2_VIS REQUIRED bot2-vis)
+
 if(NOT BOT2_VIS_FOUND)
     message("\n\n")
-    message("bot2-vis not found.  Not building obstacle renderer")
+    message("bot2-vis not found.  Not building obstacle detector renderer")
     message("\n")
     return()
 endif()
 
-add_definitions(-std=gnu99)
-add_library(obstacle-renderer SHARED renderer_tracks.c)
 
-target_link_libraries(obstacle-renderer ${OPENGL_LIBRARIES})
-
-set(REQUIRED_LIBS image-utils bot2-vis bot2-param-client bot2-frames)
-
-pods_use_pkg_config_packages(obstacle-renderer ${REQUIRED_LIBS})
-
-pods_install_headers(renderer_tracks.h DESTINATION obstacle_renderer)
-pods_install_libraries(obstacle-renderer)
-pods_install_pkg_config_file(obstacle-renderer
-    CFLAGS
-    LIBS -lobstacle-renderer
-    REQUIRES ${REQUIRED_LIBS}
-    VERSION 0.0.1)
+add_subdirectory(src)
