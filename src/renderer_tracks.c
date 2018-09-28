@@ -25,7 +25,7 @@
 
 #define FORCE_RED
 
-#include <lcmtypes/obs_lcmtypes.h>
+#include <lcmtypes/obstacle_detector_lcmtypes.h>
 
 #define RENDERER_NAME "Tracks"
 
